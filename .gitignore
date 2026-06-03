@@ -27,6 +27,9 @@ yarn-error.log*
 *.log
 *.err.log
 
+# local leftover after moving the app to repository root
+/fullstack/
+
 # local env files
 .env*.local
 
