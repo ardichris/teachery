@@ -1,48 +1,49 @@
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { Slot } from "radix-ui"
 
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  "group/badge inline-flex h-6 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-md border border-transparent px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3!",
   {
     variants: {
       variant: {
-        default: 'border-transparent text-white bg-primary',
-        primary: 'border-transparent text-white bg-primary',
-        secondary: 'border-transparent bg-secondary text-white',
-        success: 'border-transparent bg-success text-white',
-        warning: 'border-transparent bg-warning text-white',
-        info: 'border-transparent bg-info text-white',
-        error: 'border-transparent bg-error text-white',
-        outline: 'border-primary text-primary',
-        outlineSecondary: 'border-secondary text-secondary',
-        outlineSuccess: 'border-success text-success',
-        outlineWarning: 'border-warning text-warning',
-        outlineError: 'border-error text-error',
-        outlineInfo: 'border-info text-info',
-        lightPrimary: 'bg-lightprimary text-primary border-0',
-        lightSecondary: 'bg-lightsecondary text-secondary border-0',
-        lightSuccess: 'bg-lightsuccess text-success border-0',
-        lightError: 'bg-lighterror text-error border-0',
-        lightInfo: 'bg-lightinfo text-info border-0',
-        lightWarning: 'bg-lightwarning text-warning border-0',
-        destructive: 'border-transparent bg-destructive text-destructive-foreground',
-        gray: 'border-transparent bg-muted text-foreground'
+        default: "bg-primary/10 text-primary ring-1 ring-primary/20 [a]:hover:bg-primary/15",
+        secondary:
+          "bg-muted text-muted-foreground ring-1 ring-border [a]:hover:bg-muted/80",
+        destructive:
+          "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
+        outline:
+          "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
+        ghost:
+          "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
+        link: "text-primary underline-offset-4 hover:underline",
       },
     },
     defaultVariants: {
-      variant: 'default',
+      variant: "default",
     },
-  },
-);
+  }
+)
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-  VariantProps<typeof badgeVariants> { }
+function Badge({
+  className,
+  variant = "default",
+  asChild = false,
+  ...props
+}: React.ComponentProps<"span"> &
+  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
+  const Comp = asChild ? Slot.Root : "span"
 
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
+  return (
+    <Comp
+      data-slot="badge"
+      data-variant={variant}
+      className={cn(badgeVariants({ variant }), className)}
+      {...props}
+    />
+  )
 }
 
-export { Badge, badgeVariants };
+export { Badge, badgeVariants }

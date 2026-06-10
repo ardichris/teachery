@@ -1,11 +1,16 @@
 {
-  "name": "Tailwind Admin Dashboard",
-  "short_name": "TailwindAdmin",
+  "name": "Teachery",
+  "short_name": "Teachery",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#5d87ff",
   "icons": [
+    {
+      "src": "/teachery.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",

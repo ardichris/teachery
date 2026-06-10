@@ -42,7 +42,7 @@ export default function JobsPage() {
           <>
           <div className='divide-y md:hidden'>
             {jobs.map((job) => (
-              <div className='space-y-3 p-4' key={job.id}>
+              <div className='space-y-3 p-4' id={job.id} key={job.id}>
                 <div className='flex items-start justify-between gap-3'>
                   <div className='min-w-0'>
                     <p className='break-all font-mono text-xs'>{job.id}</p>
@@ -55,7 +55,7 @@ export default function JobsPage() {
                     <p className='text-xs text-muted-foreground'>Kredit</p>
                     <p className='font-semibold'>{job.actual_credit || job.estimated_credit}</p>
                   </div>
-                  {assessmentLink(job)}
+                  {jobAction(job)}
                 </div>
               </div>
             ))}
@@ -73,12 +73,12 @@ export default function JobsPage() {
               </thead>
               <tbody>
                 {jobs.map((job) => (
-                  <tr className='border-t' key={job.id}>
+                  <tr className='border-t' id={job.id} key={job.id}>
                     <td className='px-5 py-3 font-mono text-xs'>{job.id}</td>
                     <td className='px-5 py-3'>{job.type}</td>
                     <td className='px-5 py-3'><Badge variant='secondary'>{job.status}</Badge></td>
                     <td className='px-5 py-3'>{job.actual_credit || job.estimated_credit}</td>
-                    <td className='px-5 py-3'>{assessmentLink(job)}</td>
+                    <td className='px-5 py-3'>{jobAction(job)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -91,24 +91,50 @@ export default function JobsPage() {
   )
 }
 
-function assessmentLink(job: Job) {
-  const assessmentId = assessmentIdFromJob(job)
-  if (!assessmentId || job.status !== 'completed') {
-    return <span className='text-muted-foreground'>-</span>
+function jobAction(job: Job) {
+  const input = jobInput(job)
+  if (input.assessment_id && job.status === 'completed') {
+    return (
+      <Button asChild size='sm' variant='outline'>
+        <Link href={`/assessments/${input.assessment_id}`}>Buka Assessment</Link>
+      </Button>
+    )
   }
-  return (
-    <Button asChild size='sm' variant='outline'>
-      <Link href={`/assessments/${assessmentId}`}>Review</Link>
-    </Button>
-  )
+
+  if ((input.question_bank_id || input.question_bank) && job.status === 'completed') {
+    return (
+      <Button asChild size='sm' variant='outline'>
+        <Link href='/question-bank'>Buka Bank Soal</Link>
+      </Button>
+    )
+  }
+
+  if (job.status === 'processing' || job.status === 'waiting') {
+    return <span className='text-muted-foreground'>Diproses</span>
+  }
+
+  if (job.status === 'failed') {
+    return (
+      <Button asChild size='sm' variant='outline'>
+        <Link href={`/jobs#${job.id}`}>Detail</Link>
+      </Button>
+    )
+  }
+
+  return <span className='text-muted-foreground'>-</span>
 }
 
-function assessmentIdFromJob(job: Job) {
-  if (!job.input_snapshot_json) return ''
+function jobInput(job: Job) {
+  if (!job.input_snapshot_json) {
+    return {} as { assessment_id?: string; question_bank_id?: string; question_bank?: boolean }
+  }
   try {
-    const input = JSON.parse(job.input_snapshot_json) as { assessment_id?: string }
-    return input.assessment_id ?? ''
+    return JSON.parse(job.input_snapshot_json) as {
+      assessment_id?: string
+      question_bank_id?: string
+      question_bank?: boolean
+    }
   } catch {
-    return ''
+    return {}
   }
 }

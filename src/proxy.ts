@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { AUTH_COOKIE_ROLE, AUTH_COOKIE_TOKEN } from '@/lib/auth'
 
-const PUBLIC_PREFIXES = ['/auth/login']
+const PUBLIC_PREFIXES = ['/', '/auth/login', '/teachery.svg']
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PREFIXES.some(
@@ -46,6 +46,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon\\.svg|manifest\\.json|manifest\\.webmanifest|images).*)',
+    '/((?!api|_next/static|_next/image|favicon\\.svg|teachery\\.svg|manifest\\.json|manifest\\.webmanifest|images).*)',
   ],
 }

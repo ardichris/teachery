@@ -9,6 +9,7 @@ import FullLogo from "../shared/logo/FullLogo";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Search from "./Search";
+import JobNotifications from "./JobNotifications";
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
@@ -38,19 +39,19 @@ const Header = () => {
   return (
     <>
       <header
-        className={`sticky top-0 z-2 ${
-          isSticky ? "bg-background shadow-md fixed w-full" : "bg-transparent"
+        className={`sticky top-0 z-20 border-b border-border/70 backdrop-blur-xl transition-all ${
+          isSticky ? "bg-background/95 shadow-sm" : "bg-background/80"
         }`}
       >
         <nav
-          className={`rounded-none  py-4 sm:ps-6 max-w-full! sm:pe-10 dark:bg-dark flex justify-between items-center px-6`}
+          className={`mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8`}
         >
           {/* Mobile Toggle Icon */}
           <div
             onClick={() => {
               setIsOpen(true);
             }}
-            className="px-[15px] hover:text-primary dark:hover:text-primary text-foreground dark:text-muted-foreground relative after:absolute after:w-10 after:h-10 after:rounded-full hover:after:bg-lightprimary  after:bg-transparent rounded-full xl:hidden flex justify-center items-center cursor-pointer"
+            className="relative flex size-9 cursor-pointer items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm transition hover:border-primary/30 hover:bg-accent hover:text-primary xl:hidden"
           >
             <Icon icon="tabler:menu-2" height={20} width={20} />
           </div>
@@ -61,10 +62,10 @@ const Header = () => {
 
           <div className="flex xl:hidden items-center">
             <div
-              className="hover:text-primary px-2 md:px-15 group focus:ring-0 rounded-full flex justify-center items-center cursor-pointer relative"
+              className="group relative flex size-9 cursor-pointer items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm transition hover:border-primary/30 hover:bg-accent hover:text-primary"
               onClick={toggleMode}
             >
-              <span className="flex items-center justify-center relative after:absolute after:w-10 after:h-10 after:rounded-full after:-top-1/2 group-hover:after:bg-lightprimary">
+              <span className="flex items-center justify-center">
                 {theme === "light" ? (
                   <Icon icon="tabler:moon" width="20" className="text-foreground dark:text-muted-foreground group-hover:text-primary dark:group-hover:text-primary" />
                 ) : (
@@ -77,12 +78,14 @@ const Header = () => {
               </span>
             </div>
 
+            <JobNotifications />
+
             {/* Profile Dropdown */}
             <Profile />
           </div>
 
           <div className="hidden xl:flex items-center justify-between w-full">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {/* Search Icon */}              
               <div className="relative">
                 <Search />
@@ -91,11 +94,12 @@ const Header = () => {
             <div className="flex w-full justify-end items-end">
               <div className="flex gap-0 items-center ">
                 {/* ✅ Dark/Light Toggle */}
-                <div
-                  className="hover:text-primary px-15 group focus:ring-0 rounded-full flex justify-center items-center cursor-pointer text-gray relative"
+                <button
+                  aria-label="Toggle theme"
+                  className="group relative flex size-9 cursor-pointer items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm transition hover:border-primary/30 hover:bg-accent hover:text-primary"
                   onClick={toggleMode}
                 >
-                  <span className="flex items-center justify-center relative after:absolute after:w-10 after:h-10 after:rounded-full after:-top-1/2 group-hover:after:bg-lightprimary">
+                  <span className="flex items-center justify-center">
                     {theme === "light" ? (
                       <Icon icon="tabler:moon" width="20" className="text-foreground dark:text-muted-foreground group-hover:text-primary dark:group-hover:text-primary" />
                     ) : (
@@ -106,7 +110,9 @@ const Header = () => {
                       />
                     )}
                   </span>
-                </div>
+                </button>
+
+                <JobNotifications />
 
                 {/* Profile Dropdown */}
                 <Profile />

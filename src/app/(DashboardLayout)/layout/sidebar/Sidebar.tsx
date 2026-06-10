@@ -123,9 +123,9 @@ const SidebarLayout = ({ onClose }: { onClose?: () => void }) => {
       width={'270px'}
       showTrigger={false}
       mode={sidebarMode}
-      className='fixed left-0 top-0 border border-border bg-sidebar dark:bg-sidebar z-10 flex h-screen flex-col'>
+      className='fixed left-0 top-0 z-10 flex h-screen flex-col border-r border-border/70 bg-sidebar/95 shadow-sm backdrop-blur-xl dark:bg-sidebar/95'>
       {/* Logo */}
-      <div className='shrink-0 px-6 flex items-center brand-logo overflow-hidden py-4'>
+      <div className='brand-logo flex shrink-0 items-center overflow-hidden border-b border-border/70 px-6 py-4'>
         <AMLogo component={Link} href='/' img=''>
           <FullLogo />
         </AMLogo>
@@ -133,7 +133,7 @@ const SidebarLayout = ({ onClose }: { onClose?: () => void }) => {
 
       {/* Sidebar items */}
       <SimpleBar className='min-h-0 flex-1'>
-        <div className='px-6 pb-4'>
+        <div className='px-4 py-5'>
           {getSidebarContent(authUser?.role).map((section, index) => (
             <div key={index}>
               {renderSidebarItems(

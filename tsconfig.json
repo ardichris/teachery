@@ -30,12 +30,24 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "backend",
+    "docs",
+    "frontend",
+    "fullstack",
+    "nextjs",
+    "scripts",
+    "template",
+    "src/components/ui/chart.tsx",
+    "src/components/ui/combobox.tsx",
+    "src/components/ui/resizable.tsx",
+    "src/components/ui/sidebar.tsx",
+    "src/components/ui/sonner.tsx"
   ]
 }

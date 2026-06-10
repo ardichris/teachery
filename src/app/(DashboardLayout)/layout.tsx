@@ -9,14 +9,16 @@ export default function Layout({
   children: React.ReactNode
 }>) {
   return (
-    <div className='flex w-full min-h-screen'>
+    <div className='flex w-full min-h-screen bg-background'>
       <div className='page-wrapper flex w-full'>
         <div className='xl:block hidden'>
           <Sidebar />
         </div>
         <div className='body-wrapper w-full bg-background'>
           <Header />
-          <div className={`container mx-auto px-6 py-30`}>{children}</div>
+          <main className='container mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
+            {children}
+          </main>
         </div>
       </div>
       

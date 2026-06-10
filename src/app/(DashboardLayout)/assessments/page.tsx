@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { FormEvent, useEffect, useState } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
 import { apiJson } from '@/lib/teachery-api'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -25,6 +26,13 @@ type Assessment = {
   grade: string
   status: string
   updated_at: string
+  public_slug?: string
+  public_url?: string
+}
+
+type PublishResult = Assessment & {
+  public_slug: string
+  public_url: string
 }
 
 export default function AssessmentsPage() {
@@ -38,6 +46,21 @@ export default function AssessmentsPage() {
   const [createGrade, setCreateGrade] = useState('')
   const [createBusy, setCreateBusy] = useState(false)
   const [createError, setCreateError] = useState('')
+  const [deleteAssessment, setDeleteAssessment] = useState<Assessment | null>(null)
+  const [deleteBusy, setDeleteBusy] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+  const [publishBusyID, setPublishBusyID] = useState('')
+  const [publishDialog, setPublishDialog] = useState<PublishResult | null>(null)
+
+  function displayStatus(status: string) {
+    return status === 'published' || status === 'ready_to_export' || status === 'pdf_ready'
+      ? 'Published'
+      : 'Draft'
+  }
+
+  function isPublished(status: string) {
+    return displayStatus(status) === 'Published'
+  }
 
   async function loadAssessments() {
     setLoading(true)
@@ -90,6 +113,46 @@ export default function AssessmentsPage() {
       setCreateError(err instanceof Error ? err.message : 'Gagal membuat assessment.')
     } finally {
       setCreateBusy(false)
+    }
+  }
+
+  async function handleDeleteAssessment() {
+    if (!deleteAssessment) return
+
+    setDeleteBusy(true)
+    setDeleteError('')
+    setMessage('')
+
+    try {
+      await apiJson<{ success: boolean }>(`/assessments/${deleteAssessment.id}`, {
+        method: 'DELETE',
+      })
+      setDeleteAssessment(null)
+      setMessage(`Assessment "${deleteAssessment.title}" berhasil dihapus.`)
+      await loadAssessments()
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Gagal menghapus assessment.')
+    } finally {
+      setDeleteBusy(false)
+    }
+  }
+
+  async function handlePublishAssessment(item: Assessment) {
+    setPublishBusyID(item.id)
+    setError('')
+    setMessage('')
+
+    try {
+      const res = await apiJson<PublishResult>(`/assessments/${item.id}/publish`, {
+        method: 'POST',
+      })
+      setMessage(`Assessment "${item.title}" berhasil dipublish.`)
+      setPublishDialog(res.data)
+      await loadAssessments()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal publish assessment.')
+    } finally {
+      setPublishBusyID('')
     }
   }
 
@@ -188,11 +251,30 @@ export default function AssessmentsPage() {
                     <p className='font-semibold'>{item.title}</p>
                     <p className='text-sm text-muted-foreground'>{item.subject} - {item.grade}</p>
                   </div>
-                  <Badge variant='secondary'>{item.status}</Badge>
+                  <Badge variant='secondary'>{displayStatus(item.status)}</Badge>
                 </div>
-                <Button asChild size='sm' variant='outline'>
-                  <Link href={`/assessments/${item.id}`}>Review</Link>
-                </Button>
+                <div className='flex flex-wrap gap-2'>
+                  <Button asChild size='sm' variant='outline'>
+                    <Link href={`/assessments/${item.id}`}>Review</Link>
+                  </Button>
+                  <Button
+                    disabled={publishBusyID === item.id}
+                    size='sm'
+                    type='button'
+                    onClick={() => void handlePublishAssessment(item)}>
+                    {publishBusyID === item.id ? 'Publishing...' : isPublished(item.status) ? 'Lihat QR' : 'Publish'}
+                  </Button>
+                  <Button
+                    size='sm'
+                    type='button'
+                    variant='outlineerror'
+                    onClick={() => {
+                      setDeleteError('')
+                      setDeleteAssessment(item)
+                    }}>
+                    Hapus
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -213,11 +295,30 @@ export default function AssessmentsPage() {
                     <td className='px-5 py-3 font-medium'>{item.title}</td>
                     <td className='px-5 py-3'>{item.subject}</td>
                     <td className='px-5 py-3'>{item.grade}</td>
-                    <td className='px-5 py-3'><Badge variant='secondary'>{item.status}</Badge></td>
+                    <td className='px-5 py-3'><Badge variant='secondary'>{displayStatus(item.status)}</Badge></td>
                     <td className='px-5 py-3'>
-                      <Button asChild size='sm' variant='outline'>
-                        <Link href={`/assessments/${item.id}`}>Review</Link>
-                      </Button>
+                      <div className='flex flex-wrap gap-2'>
+                        <Button asChild size='sm' variant='outline'>
+                          <Link href={`/assessments/${item.id}`}>Review</Link>
+                        </Button>
+                        <Button
+                          disabled={publishBusyID === item.id}
+                          size='sm'
+                          type='button'
+                          onClick={() => void handlePublishAssessment(item)}>
+                          {publishBusyID === item.id ? 'Publishing...' : isPublished(item.status) ? 'Lihat QR' : 'Publish'}
+                        </Button>
+                        <Button
+                          size='sm'
+                          type='button'
+                          variant='outlineerror'
+                          onClick={() => {
+                            setDeleteError('')
+                            setDeleteAssessment(item)
+                          }}>
+                          Hapus
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -227,6 +328,81 @@ export default function AssessmentsPage() {
           </>
         ) : null}
       </div>
+
+      <Dialog open={Boolean(deleteAssessment)} onOpenChange={(open) => !open && setDeleteAssessment(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Assessment</DialogTitle>
+            <DialogDescription className='font-normal text-muted-foreground'>
+              Assessment ini beserta seluruh pertanyaan dan gambar ilustrasinya akan dihapus. Riwayat job tetap disimpan.
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteAssessment ? (
+            <div className='rounded-md bg-muted/40 p-3 text-sm text-muted-foreground'>
+              <p className='font-semibold text-foreground'>{deleteAssessment.title}</p>
+              <p>{deleteAssessment.subject} - {deleteAssessment.grade}</p>
+            </div>
+          ) : null}
+
+          {deleteError ? (
+            <p className='rounded-md bg-destructive/10 p-3 text-sm text-destructive'>{deleteError}</p>
+          ) : null}
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button disabled={deleteBusy} type='button' variant='outline'>
+                Batal
+              </Button>
+            </DialogClose>
+            <Button disabled={deleteBusy} type='button' variant='error' onClick={handleDeleteAssessment}>
+              {deleteBusy ? 'Menghapus...' : 'Hapus Assessment'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(publishDialog)} onOpenChange={(open) => !open && setPublishDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assessment Dipublish</DialogTitle>
+            <DialogDescription className='font-normal text-muted-foreground'>
+              Bagikan QR code atau link publik ini kepada siswa agar mereka dapat mengerjakan assessment.
+            </DialogDescription>
+          </DialogHeader>
+
+          {publishDialog ? (
+            <div className='space-y-4'>
+              <div className='flex justify-center rounded-lg border bg-white p-5'>
+                <QRCodeSVG value={publishDialog.public_url} size={220} level='M' />
+              </div>
+
+              <div className='space-y-2'>
+                <Label htmlFor='public-assessment-link'>Public Link</Label>
+                <div className='flex gap-2'>
+                  <Input id='public-assessment-link' readOnly value={publishDialog.public_url} />
+                  <Button
+                    type='button'
+                    variant='outline'
+                    onClick={() => void navigator.clipboard?.writeText(publishDialog.public_url)}>
+                    Salin
+                  </Button>
+                </div>
+              </div>
+
+              <p className='rounded-md bg-muted/40 p-3 text-sm text-muted-foreground'>
+                Siswa tidak perlu login. Jawaban yang dikirim dari link ini akan tersimpan di database.
+              </p>
+            </div>
+          ) : null}
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type='button'>Selesai</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

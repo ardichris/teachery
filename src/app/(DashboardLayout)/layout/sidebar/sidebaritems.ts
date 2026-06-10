@@ -50,8 +50,14 @@ export function getSidebarContent(role?: string): MenuItem[] {
             url: '/admin/users',
           },
           {
+            name: 'Bank Soal',
+            icon: 'solar:archive-linear',
+            id: uniqueId(),
+            url: '/question-bank',
+          },
+          {
             name: 'Kredit',
-            icon: 'solar:wallet-money-linear',
+            icon: 'lucide:gem',
             id: uniqueId(),
             url: '/admin/credits',
           },
@@ -83,6 +89,18 @@ export function getSidebarContent(role?: string): MenuItem[] {
           url: '/assessments',
         },
         {
+          name: 'Bank Soal',
+          icon: 'solar:archive-linear',
+          id: uniqueId(),
+          url: '/question-bank',
+        },
+        {
+          name: 'Submission',
+          icon: 'solar:checklist-minimalistic-linear',
+          id: uniqueId(),
+          url: '/submissions',
+        },
+        {
           name: 'Jobs',
           icon: 'solar:document-add-linear',
           id: uniqueId(),
@@ -90,7 +108,7 @@ export function getSidebarContent(role?: string): MenuItem[] {
         },
         {
           name: 'Kredit',
-          icon: 'solar:wallet-money-linear',
+          icon: 'lucide:gem',
           id: uniqueId(),
           url: '/credits',
         },

@@ -1,51 +1,31 @@
-import * as React from 'react';
-import * as ProgressPrimitive from '@radix-ui/react-progress';
-import { cva, type VariantProps } from 'class-variance-authority';
+"use client"
 
-import { cn } from '@/lib/utils';
+import * as React from "react"
+import { Progress as ProgressPrimitive } from "radix-ui"
 
-// Define the variants using cva
-const progressIndicatorVariants = cva('h-full w-full flex-1 transition-all', {
-  variants: {
-    variant: {
-      default: 'bg-primary',
-      primary: 'bg-primary',
-      secondary: 'bg-secondary',
-      success: 'bg-success',
-      error: 'bg-error',
-      warning: 'bg-warning',
-      info: 'bg-info',
-    },
-  },
-  defaultVariants: {
-    variant: 'default',
-  },
-});
+import { cn } from "@/lib/utils"
 
-// Extend the props to include variant
-interface ProgressProps
-  extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>,
-  VariantProps<typeof progressIndicatorVariants> {
-  value?: number;
-}
-
-const Progress = React.forwardRef<React.ElementRef<typeof ProgressPrimitive.Root>, ProgressProps>(
-  ({ className, value, variant, ...props }, ref) => (
+function Progress({
+  className,
+  value,
+  ...props
+}: React.ComponentProps<typeof ProgressPrimitive.Root>) {
+  return (
     <ProgressPrimitive.Root
-      ref={ref}
+      data-slot="progress"
       className={cn(
-        'relative h-1 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-white/15',
-        className,
+        "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted",
+        className
       )}
       {...props}
     >
       <ProgressPrimitive.Indicator
-        className={cn(progressIndicatorVariants({ variant }))}
+        data-slot="progress-indicator"
+        className="size-full flex-1 bg-primary transition-all"
         style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
       />
     </ProgressPrimitive.Root>
-  ),
-);
-Progress.displayName = ProgressPrimitive.Root.displayName;
+  )
+}
 
-export { Progress, progressIndicatorVariants };
+export { Progress }
